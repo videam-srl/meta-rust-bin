@@ -1,4 +1,4 @@
-inherit rust-common
+inherit cargo_common
 
 # Many crates rely on pkg-config to find native versions of their libraries for
 # linking - do the simple thing and make it generally available.
