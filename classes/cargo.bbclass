@@ -31,10 +31,19 @@ CARGO_FEATURES ??= ""
 # Control the Cargo build type (debug or release)
 CARGO_BUILD_TYPE ?= "--release"
 
+python () {
+    if d.getVar('CARGO_BUILD_PROFILE') != "":
+        d.setVar('CARGO_BUILD_TYPE', '')
+        return
+
+    if d.getVar('CARGO_BUILD_TYPE') == '--release':
+        d.setVar('CARGO_BUILD_PROFILE', 'release')
+    else:
+        d.setVar('CARGO_BUILD_PROFILE', 'debug')
+}
+
 CARGO_INSTALL_DIR ?= "${D}${bindir}"
 
-CARGO_DEBUG_DIR = "${B}/${RUST_TARGET}/debug"
-CARGO_RELEASE_DIR = "${B}/${RUST_TARGET}/release"
 WRAPPER_DIR = "${WORKDIR}/wrappers"
 
 # Set the Cargo manifest path to the typical location
@@ -46,7 +55,7 @@ CARGO_BUILD_FLAGS = "\
     --verbose \
     --manifest-path ${CARGO_MANIFEST_PATH} \
     --target=${RUST_TARGET} \
-    ${CARGO_BUILD_TYPE} \
+    --profile ${CARGO_BUILD_PROFILE} \
     ${@oe.utils.conditional('CARGO_FEATURES', '', '', '--features "${CARGO_FEATURES}"', d)} \
     ${EXTRA_CARGO_FLAGS} \
 "
@@ -131,11 +140,7 @@ cargo_do_compile() {
 }
 
 cargo_do_install() {
-    if [ "${CARGO_BUILD_TYPE}" = "--release" ]; then
-        local cargo_bindir="${CARGO_RELEASE_DIR}"
-    else
-        local cargo_bindir="${CARGO_DEBUG_DIR}"
-    fi
+    local cargo_bindir="${B}/${RUST_TARGET}/${CARGO_BUILD_PROFILE}"
 
     local files_installed=""
 
