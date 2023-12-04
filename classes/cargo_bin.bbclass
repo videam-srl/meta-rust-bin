@@ -32,6 +32,17 @@ CARGO_FEATURES ??= ""
 # Control the Cargo build type (debug or release)
 CARGO_BUILD_PROFILE ?= "release"
 
+python () {
+    if d.getVar('CARGO_BUILD_PROFILE') != "":
+        d.setVar('CARGO_BUILD_TYPE', '')
+        return
+
+    if d.getVar('CARGO_BUILD_TYPE') == '--release':
+        d.setVar('CARGO_BUILD_PROFILE', 'release')
+    else:
+        d.setVar('CARGO_BUILD_PROFILE', 'debug')
+}
+
 CARGO_INSTALL_DIR ?= "${D}${bindir}"
 
 def cargo_profile_to_builddir(profile):
@@ -132,6 +143,8 @@ cargo_bin_do_compile() {
 }
 
 cargo_bin_do_install() {
+    local cargo_bindir="${B}/${RUST_TARGET}/${CARGO_BUILD_PROFILE}"
+
     local files_installed=""
 
     for tgt in "${CARGO_BINDIR}"/*; do
