@@ -30,6 +30,7 @@ CARGO_FEATURES ??= ""
 
 # Control the Cargo build type (debug or release)
 CARGO_BUILD_TYPE ?= "--release"
+CARGO_BUILD_PROFILE ?= ""
 
 python () {
     if d.getVar('CARGO_BUILD_PROFILE') != "":
